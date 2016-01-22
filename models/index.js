@@ -29,3 +29,10 @@ module.exports = {
     User: User,
     Tweet: Tweet
 };
+
+User.findAll().then(function (user) {
+    return user.getTweets();
+})
+.then(function (tweets) {
+    console.log(JSON.stringify(tweets)); // another way of just logging the plain old values
+});
