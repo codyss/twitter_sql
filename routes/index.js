@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var tweetBank = require('../tweetBank');
+var tweetModels = require('../models/');
 
 module.exports = function makeRouterWithSockets (io) {
 
@@ -15,29 +16,85 @@ module.exports = function makeRouterWithSockets (io) {
     });
   }
 
+
+  function respondWithAllTweetsModels (req, res, next){
+    var allTheTweets = tweetModels.User.findAll({
+      include: [
+      {model: tweetModels.Tweet, required: true}
+      ]
+    }).then(function(data) {
+      var cleanTweets = data.map(function(each) {
+        return {name: each.dataValues.name, text: each.dataValues["Tweets"][0].dataValues.tweet, id: each.dataValues.id};
+        //{ name: name, text: text, id: data.length }
+      })
+      return cleanTweets;
+    }).then(function(data) {
+      console.log(data);
+      res.render('index', {
+      title: 'Twitter.js',
+      tweets: data,
+      showForm: true
+    });
+  })};
+
   // here we basically treet the root view and tweets view as identical
-  router.get('/', respondWithAllTweets);
-  router.get('/tweets', respondWithAllTweets);
+  router.get('/', respondWithAllTweetsModels);
+  router.get('/tweets', respondWithAllTweetsModels);
 
   // single-user page
-  router.get('/users/:username', function(req, res, next){
-    var tweetsForName = tweetBank.find({ name: req.params.username });
-    res.render('index', {
-      title: 'Twitter.js',
-      tweets: tweetsForName,
-      showForm: true,
-      username: req.params.username
-    });
+  router.get('/users/:username', function(req, res, next) {
+    var userName = req.params.username;
+    var tweetsForName = tweetModels.User.findAll({
+      include: [
+      {model: tweetModels.Tweet, required: true}
+      ]
+    }).then(function(data) {
+        var tweetsWanted = data.map(function(each) {
+          return {name: each.dataValues.name, text: each.dataValues["Tweets"][0].dataValues.tweet, id: each.dataValues.id};
+        })
+        return tweetsWanted.filter(function(each) {
+          return each.name === userName;
+        })
+      }).then(function(data) {
+        res.render('index', {
+          title: 'Twitter.js',
+          tweets: data,
+          showForm: true,
+          username: userName
+        });
+      });
+    //   })
+    // res.render('index', {
+    //   title: 'Twitter.js',
+    //   tweets: tweetsForName,
+    //   showForm: true,
+    //   username: userName
+    // });
   });
 
   // single-tweet page
   router.get('/tweets/:id', function(req, res, next){
-    var tweetsWithThatId = tweetBank.find({ id: Number(req.params.id) });
-    res.render('index', {
-      title: 'Twitter.js',
-      tweets: tweetsWithThatId // an array of only one element ;-)
+    var tweetId = req.params.id;
+    var tweetsWithThatId = tweetModels.User.findAll({
+      include: [
+      {model: tweetModels.Tweet, required: true}
+      ]
+    }).then(function(data) {
+      var tweetsWanted = data.map(function(each) {
+        return {name: each.dataValues.name, text: each.dataValues["Tweets"][0].dataValues.tweet, id: each.dataValues.id};
+      })
+      return tweetsWanted.filter(function(each) {
+        return each.id === +tweetId;
+      })
+    }).then(function(data) {
+      res.render('index', {
+        title: 'Twitter.js',
+        tweets: data // an array of only one element ;-)
+      });
     });
   });
+
+
 
   // create a new tweet
   router.post('/tweets', function(req, res, next){

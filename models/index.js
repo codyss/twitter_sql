@@ -30,8 +30,13 @@ module.exports = {
     Tweet: Tweet
 };
 
-// User.findAll({attributes: ['name', 'pictureUrl'], where: {name: 'David'}}).then(function (user) {
-//     console.log(user[0].dataValues);
+// User.findAll({
+//   include: [
+//   {model: Tweet, required: true}
+//   ],
+// }).then(function (user) {
+//   user.forEach(function(each) {console.log(each.dataValues.name, "says", each.dataValues["Tweets"][0].dataValues.tweet)});
+//     //console.log(user[0].dataValues);
 // });
 
 // User.query("SELECT *").spread(function(results, metadata) {
@@ -39,7 +44,7 @@ module.exports = {
 //   console.log(results);
 // })
 
-console.log(Object.keys(Sequelize));
+// console.log(Object.keys(Sequelize));
 
 // Sequelize.query('SELECT * FROM user', { model: User }).then(function(user){
 //   // Each record will now be a instance of Project
