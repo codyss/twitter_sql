@@ -30,9 +30,18 @@ module.exports = {
     Tweet: Tweet
 };
 
-User.findAll().then(function (user) {
-    return user.getTweets();
-})
-.then(function (tweets) {
-    console.log(JSON.stringify(tweets)); // another way of just logging the plain old values
-});
+// User.findAll({attributes: ['name', 'pictureUrl'], where: {name: 'David'}}).then(function (user) {
+//     console.log(user[0].dataValues);
+// });
+
+// User.query("SELECT *").spread(function(results, metadata) {
+//   // Results will be an empty array and metadata will contain the number of affected rows.
+//   console.log(results);
+// })
+
+console.log(Object.keys(Sequelize));
+
+// Sequelize.query('SELECT * FROM user', { model: User }).then(function(user){
+//   // Each record will now be a instance of Project
+//   console.log(user.dataValues);
+// })
